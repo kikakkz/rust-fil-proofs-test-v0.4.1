@@ -7,5 +7,10 @@ members = [
   "storage-proofs/porep",
   "storage-proofs/post",
   "fil-proofs-tooling",
-  "sha2raw"
+  "sha2raw",
+  "apps/sealing",
+  "apps/merkle-tree",
+  "apps/drg-parents",
+  "apps/fr32-reader",
+  "apps/sha256-rust"
 ]

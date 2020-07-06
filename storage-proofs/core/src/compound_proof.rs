@@ -89,7 +89,7 @@ where
             S::verify_all_partitions(&pub_params.vanilla_params, &pub_in, &vanilla_proofs)?;
         ensure!(sanity_check, "sanity check failed");
 
-        info!("snark_proof:start");
+        info!("snark_proof:start priority {}", pub_params.priority);
         let groth_proofs = Self::circuit_proofs(
             pub_in,
             vanilla_proofs,
