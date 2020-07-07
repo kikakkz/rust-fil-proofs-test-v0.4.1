@@ -60,12 +60,16 @@ fn main() -> std::io::Result<()> {
 	let mut cache = Some(parent_cache);
 
     for layer in START_LAYER..=layers {
+		dt = Local::now();
+		let mut last = dt.timestamp_millis();
         if 1 == layer {
             let layer_labels = &mut labels_buffer[..layer_size];
             for node in 0..graph.size() {
                 create_label(&graph, cache.as_mut(), &replica_id, layer_labels, layer as usize, node).expect("fail");
 				if 0 == node % (graph.size() / 100) {
-					println!("Current node {} in layer {}", node, layer);
+					dt = Local::now();
+					println!("Current node {} in layer {} within {}", node, layer, dt.timestamp_millis() - last);
+					last = dt.timestamp_millis();
 				}
             }
         } else {
@@ -73,7 +77,9 @@ fn main() -> std::io::Result<()> {
             for node in 0..graph.size() {
                 create_label_exp(&graph, cache.as_mut(), &replica_id, exp_labels, layer_labels, layer as usize, node).expect("fail");
 				if 0 == node % (graph.size() / 100) {
-					println!("Current node {} in layer {}", node, layer);
+					dt = Local::now();
+					println!("Current node {} in layer {} within {}", node, layer, dt.timestamp_millis() - last);
+					last = dt.timestamp_millis();
 				}
             }
         }
