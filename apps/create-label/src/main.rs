@@ -19,7 +19,7 @@ use storage_proofs::hasher::Sha256Domain;
 extern crate chrono;
 use chrono::prelude::*;
 
-const SIZE: usize = 1024 * 1024;
+const SIZE: usize = 1024 * 1024 * 32;
 const LAYERS: i8 = 2;
 
 fn main() {
@@ -54,18 +54,19 @@ fn main() {
     let layers = LAYERS;
     println!("Create Layer at {} nodes {}", dt.timestamp_millis(), graph.size());
 
-    let mut cache = Some(graph.parent_cache()?);
+	// How to get parent cache?
+    // let mut cache = Some(graph.parent_cache()?);
 
     for layer in 1..=layers {
         if 1 == layer {
             let layer_labels = &mut labels_buffer[..layer_size];
             for node in 0..graph.size() {
-                create_label(&graph, cache.as_mut(), &replica_id, layer_labels, layer as usize, node).expect("fail");
+                create_label(&graph, None, &replica_id, layer_labels, layer as usize, node).expect("fail");
             }
         } else {
             let (layer_labels, exp_labels) = labels_buffer.split_at_mut(layer_size);
             for node in 0..graph.size() {
-                create_label_exp(&graph, cache.as_mut(), &replica_id, exp_labels, layer_labels, layer as usize, node);
+                create_label_exp(&graph, None, &replica_id, exp_labels, layer_labels, layer as usize, node).expect("fail");
             }
         }
         dt = Local::now();
