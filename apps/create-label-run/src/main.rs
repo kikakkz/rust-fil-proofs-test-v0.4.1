@@ -19,10 +19,11 @@ use storage_proofs::hasher::Sha256Domain;
 extern crate chrono;
 use chrono::prelude::*;
 
-const SIZE: usize = 1024 * 1024 * 32;
-const LAYERS: i8 = 2;
+const SIZE: usize = 1024 * 1024 * 1024 * 32;
+const LAYERS: i8 = 1;
+const START_LAYER: i8 = 2;
 
-fn main() {
+fn main() -> std::io::Result<()> {
     fil_logger::init();
 
     let mut dt = Local::now();
@@ -39,8 +40,8 @@ fn main() {
     println!("Construct graph within {} ms graph size {}", dt.timestamp_millis() - start, graph.size());
     start = dt.timestamp_millis();
 
-    let _data_tree: DataTree =
-        create_base_merkle_tree::<DataTree>(None, graph.size(), &array).expect("fail");
+    // let _data_tree: DataTree =
+    //     create_base_merkle_tree::<DataTree>(None, graph.size(), &array).expect("fail");
 
     let layer_size = graph.size() * NODE_SIZE;
     let mut labels_buffer = vec![0u8; 2 * layer_size];
@@ -51,22 +52,29 @@ fn main() {
     start = dt.timestamp_millis();
     let label_start = start;
 
-    let layers = LAYERS;
+    let layers = START_LAYER + LAYERS - 1;
     println!("Create Layer at {} nodes {}", dt.timestamp_millis(), graph.size());
 
 	// How to get parent cache?
-    // let mut cache = Some(graph.parent_cache()?);
+	let parent_cache = graph.parent_cache().expect("fail");
+	let mut cache = Some(parent_cache);
 
-    for layer in 1..=layers {
+    for layer in START_LAYER..=layers {
         if 1 == layer {
             let layer_labels = &mut labels_buffer[..layer_size];
             for node in 0..graph.size() {
-                create_label(&graph, None, &replica_id, layer_labels, layer as usize, node).expect("fail");
+                create_label(&graph, cache.as_mut(), &replica_id, layer_labels, layer as usize, node).expect("fail");
+				if 0 == node % (graph.size() / 100) {
+					println!("Current node {} in layer {}", node, layer);
+				}
             }
         } else {
             let (layer_labels, exp_labels) = labels_buffer.split_at_mut(layer_size);
             for node in 0..graph.size() {
-                create_label_exp(&graph, None, &replica_id, exp_labels, layer_labels, layer as usize, node).expect("fail");
+                create_label_exp(&graph, cache.as_mut(), &replica_id, exp_labels, layer_labels, layer as usize, node).expect("fail");
+				if 0 == node % (graph.size() / 100) {
+					println!("Current node {} in layer {}", node, layer);
+				}
             }
         }
         dt = Local::now();
@@ -77,4 +85,6 @@ fn main() {
     dt = Local::now();
     println!("Create layers within {} ms", dt.timestamp_millis() - label_start);
     println!("Create done at {}", dt.timestamp_millis());
+
+	Ok(())
 }

@@ -9,7 +9,7 @@ members = [
   "fil-proofs-tooling",
   "sha2raw",
   "apps/sealing",
-  "apps/create-label",
+  "apps/create-label-run",
   "apps/merkle-tree",
   "apps/drg-parents",
   "apps/fr32-reader",
