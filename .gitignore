@@ -10,3 +10,4 @@ heaptrack*
 rust-fil-proofs.config.toml
 cache
 perf
+*.log

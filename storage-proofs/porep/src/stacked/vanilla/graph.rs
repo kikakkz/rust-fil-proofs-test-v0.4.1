@@ -25,6 +25,7 @@ use storage_proofs_core::{
 };
 
 use super::cache::ParentCache;
+use std::thread;
 
 /// The expansion degree used for Stacked Graphs.
 pub const EXP_DEGREE: usize = 8;
