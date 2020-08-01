@@ -1,0 +1,17 @@
+[package]
+name = "precommit2"
+version = "0.1.0"
+authors = ["Zhao KK <kikakkz@hotmail.com>"]
+
+[dependencies]
+filecoin-proofs = { path = "../../filecoin-proofs" }
+storage-proofs = { path = "../../storage-proofs" }
+storage-proofs-core = { path = "../../storage-proofs/core" }
+rand = "0.7"
+rand_xorshift = "0.2.0"
+paired = { version = "0.20.0", features = ["serde"] }
+fil_logger = "0.1"
+chrono = "0.4"
+ff = { version = "0.2.1", package = "fff" }
+rayon = "1.0.0"
+generic-array = "0.13.2"

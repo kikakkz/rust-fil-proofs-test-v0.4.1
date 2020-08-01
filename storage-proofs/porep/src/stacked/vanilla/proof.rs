@@ -502,6 +502,7 @@ impl<'a, Tree: 'static + MerkleTreeTrait, G: 'static + Hasher> StackedDrg<'a, Tr
                                         let elements: Vec<<Tree::Hasher as Hasher>::Domain> = store
                                             .read_range(std::ops::Range { start, end })
                                             .expect("failed to read store range");
+                                        println!("start {} end {} elements len {}", start, end, elements.len());
                                         layer_elements.extend(elements.into_iter().map(Into::into));
                                     }
                                 });

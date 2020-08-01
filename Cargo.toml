@@ -13,5 +13,6 @@ members = [
   "apps/merkle-tree",
   "apps/drg-parents",
   "apps/fr32-reader",
-  "apps/sha256-rust"
+  "apps/sha256-rust",
+  "apps/precommit2"
 ]
