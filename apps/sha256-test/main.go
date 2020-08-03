@@ -13,7 +13,8 @@ func main() {
 	}
 	start := time.Now().UnixNano()
 	hash := [32]byte{0}
-	for i := 0; i < 1; i++ {
+	count := 1000000
+	for i := 0; i < count; i++ {
 		// buf[0] = byte(i)
 		hash = sha256.Sum256(buf)
 		if 0 == i%1000000 {
@@ -24,5 +25,5 @@ func main() {
 	end := time.Now().UnixNano()
 	fmt.Printf("HASH input %s\n", buf)
 	fmt.Printf("HASH result %x\n", hash)
-	fmt.Printf("\nDone: %v ns[%v, %v]\n", end-start, start, end)
+	fmt.Printf("\nDone: %v ns[%v, %v]\n", (end-start)*1.0/int64(count), start, end)
 }

@@ -15,3 +15,4 @@ chrono = "0.4"
 ff = { version = "0.2.1", package = "fff" }
 rayon = "1.0.0"
 generic-array = "0.13.2"
+neptune = { version = "1.0.1", features = ["gpu"] }
