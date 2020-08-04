@@ -40,16 +40,16 @@ fn main() {
 	let max_gpu_tree_batch_size = 700000;
     let max_gpu_column_batch_size = 400000;
     info!("try to construct builder channel ~");
-    let (builder_tx, builder_rx) = mpsc::sync_channel::<(Vec<GenericArray<Fr, U11>>, bool)>(0);
+    let (builder_tx, builder_rx) = mpsc::sync_channel::<(Vec<GenericArray<Fr, U11>>, bool)>(10);
     mpsc::sync_channel::<(Vec<GenericArray<Fr, U11>>, bool)>(
         max_gpu_column_batch_size * U11::to_usize() * 32,
     );
     info!("success construct builder channel ~");
     let config_count = 1;
-    // let nodes_count = 1073741824;
-    // let layers = 11;
-    let nodes_count = 16777216;
-    let layers = 2;
+    let nodes_count = 1073741824;
+    let layers = 11;
+    // let nodes_count = 16777216;
+    // let layers = 2;
     let tree_count = 1;
 
     let mut dt = Local::now();
@@ -67,7 +67,7 @@ fn main() {
                     info!("<PRODUCER> processing config {}/{} with column nodes {} node index {}", i + 1, tree_count, chunked_nodes_count, node_index);
                     let mut columns: Vec<GenericArray<Fr, U11>> = vec![
                         GenericArray::<Fr, U11>::generate(|_i: usize| Fr::zero());
-                    	chunked_nodes_count
+						chunked_nodes_count
                     ];
 					info!("<PRODUCER> start to create layer data ~");
                     let mut layer_data: Vec<Vec<Fr>> =
@@ -112,11 +112,12 @@ fn main() {
 			while i < 1 {
 				info!("<CONSUMER> waiting for next columns ~");
 				let (columns, is_final): (Vec<GenericArray<Fr, U11>>, bool) = builder_rx.recv().expect("Failed to recv columns");
-				info!("<CONSUMER> next columns received ~");
 				if !is_final {
+					info!("<CONSUMER> next columns received ~");
 					column_tree_builder.add_columns(&columns).expect("Failed to add columns");
 					continue;
 				}
+				info!("<CONSUMER> last columns received ~");
 				column_tree_builder.add_final_columns(&columns).expect("failed to add final columns");
 				info!("<CONSUMER> last column processed ~");
 				i += 1;
