@@ -37,7 +37,7 @@ use log::info;
 fn main() {
     fil_logger::init();
     info!("try to test precommit2 ~");
-	let max_gpu_tree_batch_size = 700000;
+    let max_gpu_tree_batch_size = 700000;
     let max_gpu_column_batch_size = 400000;
     info!("try to construct builder channel ~");
     let (builder_tx, builder_rx) = mpsc::sync_channel::<(Vec<GenericArray<Fr, U11>>, bool)>(10);
@@ -55,7 +55,7 @@ fn main() {
     let mut dt = Local::now();
     let mut start = dt.timestamp_millis();
 
-	info!("start precommit2 at {} ms", start);
+    info!("start precommit2 at {} ms", start);
     rayon::scope(|s| {
         s.spawn(move |_| {
             for i in 0..config_count {
@@ -67,12 +67,12 @@ fn main() {
                     info!("<PRODUCER> processing config {}/{} with column nodes {} node index {}", i + 1, tree_count, chunked_nodes_count, node_index);
                     let mut columns: Vec<GenericArray<Fr, U11>> = vec![
                         GenericArray::<Fr, U11>::generate(|_i: usize| Fr::zero());
-						chunked_nodes_count
+                        chunked_nodes_count
                     ];
-					info!("<PRODUCER> start to create layer data ~");
+                    info!("<PRODUCER> start to create layer data ~");
                     let mut layer_data: Vec<Vec<Fr>> =
                         vec![Vec::with_capacity(chunked_nodes_count); layers];
-					info!("<PRODUCER> start to fill column elements ~");
+                    info!("<PRODUCER> start to fill column elements ~");
                     rayon::scope(|s| {
                         let layer_data: &mut Vec<_> = &mut layer_data;
                         s.spawn(move |_| {
@@ -80,15 +80,15 @@ fn main() {
                                 let start = (i * nodes_count) + node_index;
                                 let end = start + chunked_nodes_count;
                                 info!("<PRODUCER> current layer {} elements length {}/[{}, {}]", layer_index, layer_elements.len(), start, end);
-								layer_elements.extend(&vec![
-									Fr::zero();
-									chunked_nodes_count
-								]);
+                                layer_elements.extend(&vec![
+                                    Fr::zero();
+                                    chunked_nodes_count
+                                ]);
                             }
                         });
                     });
 
-					info!("<PRODUCER> start to reorganize column elements ~");
+                    info!("<PRODUCER> start to reorganize column elements ~");
                     for layer_index in 0..layers {
                         for index in 0..chunked_nodes_count {
                             // info!("convert column {}/{}", layer_index, index);
@@ -100,32 +100,32 @@ fn main() {
                     node_index += chunked_nodes_count;
                     let is_final = node_index == nodes_count;
                     builder_tx.send((columns, is_final)).expect("failed to send columns");
-					info!("<PRODUCER> send columns done ~");
+                    info!("<PRODUCER> send columns done ~");
                 }
             }
         });
-		s.spawn(move |_| {
-			let mut column_tree_builder = ColumnTreeBuilder::<U11, U8>::new(
-				Some(BatcherType::GPU), nodes_count, max_gpu_column_batch_size, max_gpu_tree_batch_size)
-				.expect("fail to create ColumnTreeBuilder");
-			let mut i = 0;
-			while i < 1 {
-				info!("<CONSUMER> waiting for next columns ~");
-				let (columns, is_final): (Vec<GenericArray<Fr, U11>>, bool) = builder_rx.recv().expect("Failed to recv columns");
-				if !is_final {
-					info!("<CONSUMER> next columns received ~");
-					column_tree_builder.add_columns(&columns).expect("Failed to add columns");
-					continue;
-				}
-				info!("<CONSUMER> last columns received ~");
-				column_tree_builder.add_final_columns(&columns).expect("failed to add final columns");
-				info!("<CONSUMER> last column processed ~");
-				i += 1;
-			}
-		});
+        s.spawn(move |_| {
+            let mut column_tree_builder = ColumnTreeBuilder::<U11, U8>::new(
+                Some(BatcherType::GPU), nodes_count, max_gpu_column_batch_size, max_gpu_tree_batch_size)
+                .expect("fail to create ColumnTreeBuilder");
+            let mut i = 0;
+            while i < 1 {
+                info!("<CONSUMER> waiting for next columns ~");
+                let (columns, is_final): (Vec<GenericArray<Fr, U11>>, bool) = builder_rx.recv().expect("Failed to recv columns");
+                if !is_final {
+                    info!("<CONSUMER> next columns received ~");
+                    column_tree_builder.add_columns(&columns).expect("Failed to add columns");
+                    continue;
+                }
+                info!("<CONSUMER> last columns received ~");
+                column_tree_builder.add_final_columns(&columns).expect("failed to add final columns");
+                info!("<CONSUMER> last column processed ~");
+                i += 1;
+            }
+        });
     });
 
     dt = Local::now();
     let mut end = dt.timestamp_millis();
-	info!("precommit2 elapse {} ms", end - start);
+    info!("precommit2 elapse {} ms", end - start);
 }
