@@ -40,17 +40,19 @@ fn main() {
     let max_gpu_tree_batch_size = 700000;
     let max_gpu_column_batch_size = 400000;
     info!("try to construct builder channel ~");
-    let (builder_tx, builder_rx) = mpsc::sync_channel::<(Vec<GenericArray<Fr, U11>>, bool)>(10);
+    let (builder_tx, builder_rx) = mpsc::sync_channel::<(Vec<GenericArray<Fr, U11>>, bool)>(0);
     mpsc::sync_channel::<(Vec<GenericArray<Fr, U11>>, bool)>(
         max_gpu_column_batch_size * U11::to_usize() * 32,
     );
     info!("success construct builder channel ~");
-    let config_count = 1;
-    let nodes_count = 1073741824;
+    let graph_size = 1073741824;
+    let tree_count = 8;
     let layers = 11;
-    // let nodes_count = 16777216;
+    // let graph_size = 16777216;
     // let layers = 2;
-    let tree_count = 1;
+    // let tree_count = 1;
+    let nodes_count = graph_size / tree_count;
+    let config_count = tree_count;
 
     let mut dt = Local::now();
     let mut start = dt.timestamp_millis();
@@ -105,11 +107,13 @@ fn main() {
             }
         });
         s.spawn(move |_| {
+			info!("<CONSUMER> create column tree builder ~");
             let mut column_tree_builder = ColumnTreeBuilder::<U11, U8>::new(
                 Some(BatcherType::GPU), nodes_count, max_gpu_column_batch_size, max_gpu_tree_batch_size)
                 .expect("fail to create ColumnTreeBuilder");
+			info!("<CONSUMER> start to feed GPU ~");
             let mut i = 0;
-            while i < 1 {
+            while i < config_count {
                 info!("<CONSUMER> waiting for next columns ~");
                 let (columns, is_final): (Vec<GenericArray<Fr, U11>>, bool) = builder_rx.recv().expect("Failed to recv columns");
                 if !is_final {
