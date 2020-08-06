@@ -67,17 +67,17 @@ def main():
     gpu_idle_total = 0
 
     for line in open("./p2.log"):
-        if 'start to reorganize' in line:
+        if 'start to reorganize' in line or 'START reorganize column' in line:
             reorg_start = ts_from_line(line)
         elif 'node index' in line:
             reorg_end = ts_from_line(line)
             reorg_total += reorg_end - reorg_start
-        elif 'waiting for next columns' in line:
+        elif 'waiting for next column' in line:
             gpu_idle_start = ts_from_line(line)
-        elif 'next columns received' in line:
+        elif 'next columns received' in line or 'next column received' in line:
             gpu_idle_end = ts_from_line(line)
             gpu_idle_total += gpu_idle_end - gpu_idle_start
-        elif 'start to fill' in line:
+        elif 'start to fill' in line or 'START current layer' in line:
             layer_start = ts_from_line(line)
             rounds += 1
         elif 'current layer 0' in line:
@@ -92,8 +92,6 @@ def main():
         elif 'current layer 1' in line:
             layer1_end = ts_from_line(line)
             layer1_total += layer1_end - layer0_end
-            if 50 < layer1_end - layer0_end:
-                print(line)
             layer1_max = max(layer1_max, layer1_end - layer0_end)
         elif 'current layer 2' in line:
             layer2_end = ts_from_line(line)
@@ -127,7 +125,9 @@ def main():
             layer9_end = ts_from_line(line)
             layer9_total += layer9_end - layer8_end
             layer9_max = max(layer9_max, layer9_end - layer8_end)
-    
+        elif 'tree_c done' in line:
+            break    
+
     print("Layer all total -> {} / avg -> {} / rounds -> {}" . format(layer_total, layer_total / rounds, rounds))
     print("Layer 0 total -> {} / avg -> {} / max -> {}" . format(layer0_total, layer0_total / rounds, layer0_max))
     print("Layer 1 total -> {} / avg -> {} / max -> {}" . format(layer1_total, layer1_total / rounds, layer1_max))
