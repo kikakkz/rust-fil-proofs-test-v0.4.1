@@ -107,11 +107,11 @@ fn main() {
             }
         });
         s.spawn(move |_| {
-			info!("<CONSUMER> create column tree builder ~");
+            info!("<CONSUMER> create column tree builder ~");
             let mut column_tree_builder = ColumnTreeBuilder::<U11, U8>::new(
                 Some(BatcherType::GPU), nodes_count, max_gpu_column_batch_size, max_gpu_tree_batch_size)
                 .expect("fail to create ColumnTreeBuilder");
-			info!("<CONSUMER> start to feed GPU ~");
+            info!("<CONSUMER> start to feed GPU ~");
             let mut i = 0;
             while i < config_count {
                 info!("<CONSUMER> waiting for next columns ~");
