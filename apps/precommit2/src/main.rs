@@ -81,11 +81,11 @@ fn main() {
                             for (layer_index, layer_elements) in layer_data.iter_mut().enumerate() {
                                 let start = (i * nodes_count) + node_index;
                                 let end = start + chunked_nodes_count;
-                                info!("<PRODUCER> current layer {} elements length {}/[{}, {}]", layer_index, layer_elements.len(), start, end);
                                 layer_elements.extend(&vec![
                                     Fr::zero();
                                     chunked_nodes_count
                                 ]);
+                                info!("<PRODUCER> current layer {} elements length {}/[{}, {}]", layer_index, layer_elements.len(), start, end);
                             }
                         });
                     });
