@@ -69,7 +69,7 @@ def main():
     for line in open("./p2.log"):
         if 'start to reorganize' in line or 'START reorganize column' in line:
             reorg_start = ts_from_line(line)
-        elif 'node index' in line:
+        elif 'node index' in line and 'processing config' not in line:
             reorg_end = ts_from_line(line)
             reorg_total += reorg_end - reorg_start
         elif 'waiting for next column' in line:
